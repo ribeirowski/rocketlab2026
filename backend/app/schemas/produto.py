@@ -1,6 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field
 
-
 class ProductBase(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
@@ -14,13 +13,10 @@ class ProductBase(BaseModel):
     height_cm: float | None = Field(None, ge=0)
     width_cm: float | None = Field(None, ge=0)
 
-
 class ProductCreate(ProductBase):
     product_id: str = Field(..., max_length=32, min_length=32)
-
 
 class ProductResponse(ProductCreate):
     average_rating: float | None = Field(None, ge=0, le=5)
     total_sales: int | None = Field(None, ge=0)
-
     model_config = ConfigDict(from_attributes=True, str_strip_whitespace=True)

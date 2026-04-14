@@ -9,7 +9,6 @@ from app.schemas import OrderResponse
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
-
 @router.get("/", response_model=list[OrderResponse])
 def list_orders(
     consumer_id: Optional[str] = Query(None, description="Filter by consumer"),

@@ -9,7 +9,6 @@ from app.schemas import ConsumerResponse
 
 router = APIRouter(prefix="/consumers", tags=["Consumers"])
 
-
 @router.get("/", response_model=list[ConsumerResponse])
 def list_consumers(
     search: Optional[str] = Query(None, description="Search by name, city, or state"),

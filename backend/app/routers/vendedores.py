@@ -9,7 +9,6 @@ from app.schemas import SellerResponse
 
 router = APIRouter(prefix="/sellers", tags=["Sellers"])
 
-
 @router.get("/", response_model=list[SellerResponse])
 def list_sellers(
     search: Optional[str] = Query(None, description="Search by name, city, or state"),
