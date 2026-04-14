@@ -41,6 +41,24 @@ def populate_table(
     )
     print(f"   -> {len(df):,} rows inserted into '{table_name}'\n")
 
+def populate_category_images() -> None:
+    """Read dim_categoria_imagens.csv and insert into categorias."""
+    print("Populating table 'categorias'...")
+    df = pd.read_csv(DATA_DIR / "dim_categoria_imagens.csv", encoding="utf-8")
+    df = df.rename(columns={"Categoria": "nome_categoria", "Link": "url_imagem"})
+    df = df.drop_duplicates(subset=["nome_categoria"], keep="first")
+    # Clear existing rows to allow re-running seed safely
+    with engine.begin() as conn:
+        conn.execute(text("DELETE FROM categorias"))
+    df.to_sql(
+        "categorias",
+        engine,
+        if_exists="append",
+        index=False,
+        method="multi",
+    )
+    print(f"   -> {len(df):,} rows inserted into 'categorias'\n")
+
 def verify_population() -> None:
     tables = [
         "consumidores",
@@ -49,6 +67,7 @@ def verify_population() -> None:
         "pedidos",
         "itens_pedidos",
         "avaliacoes_pedidos",
+        "categorias",
     ]
 
     print("Checking row counts...")
@@ -77,6 +96,7 @@ if __name__ == "__main__":
         parse_dates=["data_comentario", "data_resposta"],
         dedup_column="id_avaliacao",
     )
+    populate_category_images()
 
     verify_population()
-    print("\n✅ Database populated successfully!")
+    print("\n OK Database populated successfully!")

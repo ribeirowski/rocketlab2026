@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 
@@ -18,3 +18,5 @@ class OrderReview(Base):
     comment_text: Mapped[Optional[str]] = mapped_column("comentario", String(1000), nullable=True)
     comment_at: Mapped[Optional[datetime]] = mapped_column("data_comentario", DateTime, nullable=True)
     reply_at: Mapped[Optional[datetime]] = mapped_column("data_resposta", DateTime, nullable=True)
+
+    order: Mapped["Order"] = relationship("Order", back_populates="reviews")

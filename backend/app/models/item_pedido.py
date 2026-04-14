@@ -1,5 +1,5 @@
 from sqlalchemy import Float, ForeignKey, Integer, PrimaryKeyConstraint, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 
@@ -20,3 +20,7 @@ class OrderItem(Base):
     shipping_price: Mapped[float] = mapped_column("preco_frete", Float)
 
     __table_args__ = (PrimaryKeyConstraint("id_pedido", "id_item"),)
+
+    order: Mapped["Order"] = relationship("Order", back_populates="items")
+    product: Mapped["Product"] = relationship("Product", back_populates="items")
+    seller: Mapped["Seller"] = relationship("Seller", back_populates="items")
