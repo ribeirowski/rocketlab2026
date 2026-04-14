@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom"
 import { Pencil, Trash2, MoreHorizontal } from "lucide-react"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -9,18 +9,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { StarRating } from "@/components/atoms/StarRating"
-import { CategoryBadge } from "@/components/atoms/CategoryBadge"
 import { StockDisplay } from "@/components/atoms/StockDisplay"
 import { useUIStore } from "@/store/ui.store"
 import { useDeleteProduct } from "@/hooks/useProducts"
 import type { Product } from "@/types"
 import { cn } from "@/lib/utils"
 
-interface ProductCardProps {
-  product: Product
-}
-
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product }: { product: Product }) {
   const navigate = useNavigate()
   const { openEdit } = useUIStore()
   const deleteProduct = useDeleteProduct()
@@ -28,35 +23,41 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Card
       className={cn(
-        "group relative flex cursor-pointer flex-col transition-shadow duration-150",
-        "hover:shadow-md"
+        "group flex cursor-pointer flex-col overflow-hidden rounded-lg",
+        "border transition-shadow duration-150 hover:shadow-md"
       )}
       onClick={() => navigate(`/products/${product.product_id}`)}
     >
-      {/* Imagem da categoria */}
+      {/* Imagem compacta */}
       {product.category_image_url ? (
-        <div className="h-32 overflow-hidden rounded-t-lg bg-muted">
+        <div className="h-24 overflow-hidden bg-muted">
           <img
             src={product.category_image_url}
             alt={product.product_category ?? ""}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
             loading="lazy"
           />
         </div>
       ) : (
-        <div className="flex h-32 items-center justify-center rounded-t-lg bg-muted/50">
-          <span className="text-3xl">📦</span>
+        <div className="flex h-24 items-center justify-center bg-muted/40 text-2xl">
+          📦
         </div>
       )}
 
-      <CardContent className="flex-1 space-y-2 p-4">
-        <div className="flex items-start justify-between gap-2">
-          <CategoryBadge category={product.product_category} />
-          {/* Menu de ações — não propaga o click para o card */}
+      <CardContent className="flex flex-1 flex-col gap-1.5 p-3">
+        {/* Categoria + menu */}
+        <div className="flex items-center justify-between gap-1">
+          <span className="truncate text-xs font-medium text-muted-foreground capitalize">
+            {product.product_category?.replace(/_/g, " ") ?? "Sem categoria"}
+          </span>
           <DropdownMenu>
             <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-              <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0">
-                <MoreHorizontal size={14} />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="-mr-1 h-6 w-6 shrink-0"
+              >
+                <MoreHorizontal size={13} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -64,28 +65,29 @@ export function ProductCard({ product }: ProductCardProps) {
               onClick={(e) => e.stopPropagation()}
             >
               <DropdownMenuItem onClick={() => openEdit(product.product_id)}>
-                <Pencil size={14} className="mr-2" /> Editar
+                <Pencil size={13} className="mr-2" /> Editar
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="text-destructive"
+                className="text-destructive focus:text-destructive"
                 onClick={() => deleteProduct.mutate(product.product_id)}
               >
-                <Trash2 size={14} className="mr-2" /> Excluir
+                <Trash2 size={13} className="mr-2" /> Excluir
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
 
-        <p className="line-clamp-2 text-sm leading-snug font-medium">
+        {/* Nome */}
+        <p className="line-clamp-2 flex-1 text-xs leading-snug font-medium">
           {product.product_name}
         </p>
 
-        <StarRating value={product.average_rating} />
+        {/* Footer */}
+        <div className="flex items-center justify-between pt-1">
+          <StarRating value={product.average_rating} size={11} />
+          <StockDisplay totalSales={product.total_sales} />
+        </div>
       </CardContent>
-
-      <CardFooter className="border-t px-4 py-2">
-        <StockDisplay totalSales={product.total_sales} />
-      </CardFooter>
     </Card>
   )
 }
