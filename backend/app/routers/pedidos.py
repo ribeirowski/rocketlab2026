@@ -1,6 +1,7 @@
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -46,3 +47,36 @@ def update_order(order_id: str, payload: OrderUpdate, db: Session = Depends(get_
     db.commit()
     db.refresh(order)
     return order
+
+@router.get("/stats/summary")
+def get_orders_stats_summary(db: Session = Depends(get_db)):
+    total = db.query(func.count(Order.order_id)).scalar() or 0
+
+    by_status_rows = (
+        db.query(Order.status, func.count(Order.order_id).label("count"))
+        .group_by(Order.status)
+        .all()
+    )
+
+    by_month_rows = (
+        db.query(
+            func.strftime("%Y-%m", Order.order_purchase_timestamp).label("month"),
+            func.count(Order.order_id).label("count"),
+        )
+        .filter(Order.order_purchase_timestamp.isnot(None))
+        .group_by(func.strftime("%Y-%m", Order.order_purchase_timestamp))
+        .order_by(func.strftime("%Y-%m", Order.order_purchase_timestamp))
+        .all()
+    )
+
+    return {
+        "total": total,
+        "by_status": [
+            {"status": row.status, "count": row.count}
+            for row in by_status_rows
+        ],
+        "by_month": [
+            {"month": row.month, "count": row.count}
+            for row in by_month_rows
+        ],
+    }

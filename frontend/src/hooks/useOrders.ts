@@ -7,3 +7,10 @@ export const useOrders = (params?: { status?: string; limit?: number }) =>
     queryFn: () => ordersApi.list(params),
     staleTime: 1000 * 60 * 5,
   })
+
+export const useOrderStats = () =>
+  useQuery({
+    queryKey: ["orders", "stats"],
+    queryFn: () => ordersApi.getStats(),
+    staleTime: 1000 * 60 * 5,
+  })

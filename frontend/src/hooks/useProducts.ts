@@ -6,6 +6,7 @@ export const PRODUCT_KEYS = {
   all: ["products"] as const,
   list: (f: ProductFilters) => ["products", "list", f] as const,
   detail: (id: string) => ["products", "detail", id] as const,
+  stats: ["products", "stats"] as const,
 }
 
 export const useProducts = (filters: ProductFilters = {}) =>
@@ -19,6 +20,13 @@ export const useProduct = (id: string) =>
     queryKey: PRODUCT_KEYS.detail(id),
     queryFn: () => productsApi.get(id),
     enabled: !!id,
+  })
+
+export const useProductStats = () =>
+  useQuery({
+    queryKey: PRODUCT_KEYS.stats,
+    queryFn: () => productsApi.getStats(),
+    staleTime: 1000 * 60 * 5,
   })
 
 export const useCreateProduct = () => {

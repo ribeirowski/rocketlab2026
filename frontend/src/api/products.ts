@@ -6,6 +6,28 @@ import type {
   ProductFilters,
 } from "@/types"
 
+export interface TopProduct {
+  product_id: string
+  product_name: string
+  sales: number
+  revenue: number
+}
+
+export interface MonthlySale {
+  month: string
+  sales: number
+  revenue: number
+}
+
+export interface ProductStats {
+  total_products: number
+  total_sales: number
+  total_revenue: number
+  avg_rating_global: number | null
+  top_products: TopProduct[]
+  monthly_sales: MonthlySale[]
+}
+
 export const productsApi = {
   list: (filters?: ProductFilters) =>
     apiClient
@@ -23,4 +45,7 @@ export const productsApi = {
 
   delete: (id: string) =>
     apiClient.delete(`/products/${id}`).then((r) => r.data),
+
+  getStats: () =>
+    apiClient.get<ProductStats>("/products/stats/summary").then((r) => r.data),
 }

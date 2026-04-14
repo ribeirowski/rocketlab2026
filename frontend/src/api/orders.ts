@@ -10,7 +10,16 @@ export interface Order {
   on_time_delivery: string | null
 }
 
+export interface OrderStats {
+  total: number
+  by_status: { status: string; count: number }[]
+  by_month: { month: string; count: number }[]
+}
+
 export const ordersApi = {
   list: (params?: { status?: string; skip?: number; limit?: number }) =>
     apiClient.get<Order[]>("/orders/", { params }).then((r) => r.data),
+
+  getStats: () =>
+    apiClient.get<OrderStats>("/orders/stats/summary").then((r) => r.data),
 }
